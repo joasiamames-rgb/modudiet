@@ -1,0 +1,108 @@
+
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ModuDiet</title>
+<link rel="manifest" href="manifest.json">
+<style>
+body{font-family:Arial;margin:0;background:#f2f4f7}
+header{background:#2e7d32;color:white;padding:14px;text-align:center;font-size:22px}
+nav{display:flex;justify-content:space-around;background:#ffffff;border-top:1px solid #ddd;position:fixed;bottom:0;width:100%}
+nav button{flex:1;padding:12px;border:none;background:white}
+.container{padding:16px;margin-bottom:70px}
+.card{background:white;padding:16px;border-radius:10px;margin-bottom:12px;box-shadow:0 2px 6px rgba(0,0,0,0.08)}
+.grid5{display:grid;grid-template-columns:1fr;gap:6px}
+input{padding:8px;width:100%;margin-top:4px}
+ul{padding-left:18px}
+</style>
+</head>
+
+<body>
+
+<header>🍽 ModuDiet</header>
+
+<div class="container" id="screen"></div>
+
+<nav>
+<button onclick="showPlan()">Plan</button>
+<button onclick="showShopping()">Zakupy</button>
+<button onclick="showRecipes()">Przepisy</button>
+<button onclick="showReceipt()">Paragon</button>
+</nav>
+
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
+
+<script>
+
+let plan = {}
+let shopping = []
+
+function showPlan(){
+document.getElementById("screen").innerHTML=`
+<div class="card">
+<b>Plan dnia (5 posiłków)</b>
+<div class="grid5">
+<input placeholder="Śniadanie">
+<input placeholder="II śniadanie">
+<input placeholder="Obiad">
+<input placeholder="Podwieczorek">
+<input placeholder="Kolacja">
+</div>
+<p style="font-size:12px;color:#666">Plan synchronizuje się przez Firebase w pełnej wersji.</p>
+</div>`
+}
+
+function showShopping(){
+let list = shopping.map(i=>"<li>"+i+"</li>").join("")
+document.getElementById("screen").innerHTML=`
+<div class="card">
+<b>Lista zakupów</b>
+<input id="newItem" placeholder="Dodaj produkt">
+<button onclick="addItem()">Dodaj</button>
+<ul>${list}</ul>
+</div>`
+}
+
+function addItem(){
+let v=document.getElementById("newItem").value
+if(v){shopping.push(v);showShopping()}
+}
+
+function showRecipes(){
+document.getElementById("screen").innerHTML=`
+<div class="card">
+<b>Baza przepisów</b>
+<p>Tu pojawią się Twoje przepisy:</p>
+<ul>
+<li>Pulpeciki z kurczaka</li>
+<li>Rosół</li>
+<li>Zupa ziemniaczana</li>
+<li>Owsianka</li>
+<li>Muffinki jajeczne</li>
+</ul>
+</div>`
+}
+
+function showReceipt(){
+document.getElementById("screen").innerHTML=`
+<div class="card">
+<b>Skanuj paragon</b>
+<input type="file" id="fileInput">
+<p style="font-size:12px;color:#666">OCR odczyta produkty z paragonu.</p>
+<div id="result"></div>
+</div>`
+
+document.getElementById("fileInput").addEventListener("change", async function(){
+const file=this.files[0]
+const res=await Tesseract.recognize(file,'pol')
+document.getElementById("result").innerText=res.data.text
+})
+}
+
+showPlan()
+
+</script>
+</body>
+</html>
